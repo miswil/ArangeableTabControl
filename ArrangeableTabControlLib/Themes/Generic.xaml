@@ -1,0 +1,147 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:ArrangeableTabControlLib">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/AutoHideScrollViewer;component/AutoHideScrollViewer.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Color x:Key="defaultColor">#CDCDCD</Color>
+    <Color x:Key="mouseoverColor">#DCDCDC</Color>
+    <Color x:Key="selectedColor">#F7F7F7</Color>
+    <SolidColorBrush x:Key="defaultBrush" Color="{StaticResource defaultColor}"/>
+    <SolidColorBrush x:Key="mouseoverBrush" Color="{StaticResource mouseoverColor}"/>
+    <SolidColorBrush x:Key="selectedBrush" Color="{StaticResource selectedColor}"/>
+
+    <ControlTemplate x:Key="closeTabButtonTemplate"
+                     TargetType="{x:Type Button}">
+        <Border CornerRadius="3"
+                Background="{TemplateBinding Background}">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center"
+                  Margin="{TemplateBinding Padding}">
+                <Path Data="M 0,0 L 10,10"
+                  Stroke="Black" Fill="Black"/>
+                <Path Data="M 10,0 L 0,10"
+                  Stroke="Black" Fill="Black"/>
+            </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#D0D0D0"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    <Style x:Key="closeTabButtonStyle"
+           TargetType="{x:Type Button}">
+        <Setter Property="Template" Value="{StaticResource closeTabButtonTemplate}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Height" Value="18"/>
+        <Setter Property="Margin" Value="5,0"/>
+        <Setter Property="Padding" Value="3"/>
+    </Style>
+
+    <Style TargetType="{x:Type local:ArrangeableTabControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:ArrangeableTabControl}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                        <DockPanel LastChildFill="True">
+                            <ScrollViewer Style="{StaticResource AutoHideScrollViewerStyle}"
+                                          DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                                <ItemsPresenter x:Name="PART_ItemsPanel"/>
+                            </ScrollViewer>
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              ContentSource="SelectedContent"/>
+                        </DockPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Background="{StaticResource defaultBrush}">
+                        <StackPanel.Style>
+                            <Style TargetType="{x:Type StackPanel}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ArrangeableTabControl}}}"
+                                                 Value="{x:Static Dock.Top}">
+                                        <Setter Property="Orientation" Value="Horizontal"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ArrangeableTabControl}}}"
+                                                 Value="{x:Static Dock.Right}">
+                                        <Setter Property="Orientation" Value="Vertical"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ArrangeableTabControl}}}"
+                                                 Value="{x:Static Dock.Bottom}">
+                                        <Setter Property="Orientation" Value="Horizontal"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ArrangeableTabControl}}}"
+                                                 Value="{x:Static Dock.Left}">
+                                        <Setter Property="Orientation" Value="Vertical"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                    </StackPanel>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="TabStripPlacement" Value="Top"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style TargetType="{x:Type local:ArrangeableTabItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:ArrangeableTabItem}">
+                    <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                            Margin="{TemplateBinding Margin}">
+                        <Grid>
+                            <ContentPresenter ContentSource="Header"
+                                              Margin="{TemplateBinding Padding}"
+                                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            <Button x:Name="closeTabButton"
+                                    Command="{x:Static local:ArrangeableTabControl.CloseTabCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                    Style="{StaticResource closeTabButtonStyle}"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource selectedBrush}"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsSelected" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="{StaticResource mouseoverBrush}"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter TargetName="closeTabButton" Property="Visibility" Value="Hidden"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="{StaticResource defaultBrush}"/>
+    </Style>
+</ResourceDictionary>
